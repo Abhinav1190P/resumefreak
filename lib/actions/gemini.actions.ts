@@ -9,7 +9,7 @@ import {
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-flash",
+ model: "gemini-1.5-flash-latest",
 });
 
 const generationConfig = {
@@ -21,15 +21,20 @@ const generationConfig = {
   responseMimeType: "application/json",
 };
 
-async function askGemini(prompt: string) {
-  const chatSession = model.startChat({
-    generationConfig,
-    history: [],
+async function askGroq(prompt: string) {
+  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: "llama-3.1-8b-instant",
+      messages: [{ role: "user", content: prompt }]
+    })
   });
-
-  const result = await chatSession.sendMessage(prompt);
-
-  return result.response.text();
+  const data = await response.json();
+  return data.choices[0].message.content;
 }
 
 export async function generateSummary(jobTitle: string) {
@@ -38,23 +43,26 @@ export async function generateSummary(jobTitle: string) {
       ? `Given the job title '${jobTitle}', provide a summary for three experience levels: Senior, Mid Level, and Fresher. Each summary should be 3-4 lines long and include the experience level and the corresponding summary in JSON format. The output should be an array of objects, each containing 'experience_level' and 'summary' fields. Ensure the summaries are tailored to each experience level.`
       : `Create a 3-4 line summary about myself for my resume, emphasizing my personality, social skills, and interests outside of work. The output should be an array of JSON objects, each containing 'experience_level' and 'summary' fields representing Active, Average, and Lazy personality traits. Use example hobbies if needed but do not insert placeholders for me to fill in.`;
 
-  const result = await askGemini(prompt);
-
-  return JSON.parse(result);
+  const result = await askGroq(prompt);
+  const match = result.match(/\[[\s\S]*\]/);
+  if (!match) throw new Error("No JSON array found in response");
+  return JSON.parse(match[0]);
 }
 
 export async function generateEducationDescription(educationInfo: string) {
   const prompt = `Based on my education at ${educationInfo}, provide personal descriptions for three levels of curriculum activities: High Activity, Medium Activity, and Low Activity. Each description should be 3-4 lines long and written from my perspective, reflecting on past experiences. The output should be an array of JSON objects, each containing 'activity_level' and 'description' fields. Please include a subtle hint about my good (but not the best) results.`;
 
-  const result = await askGemini(prompt);
-
-  return JSON.parse(result);
+  const result = await askGroq(prompt);
+  const match = result.match(/\[[\s\S]*\]/);
+  if (!match) throw new Error("No JSON array found in response");
+  return JSON.parse(match[0]);
 }
 
 export async function generateExperienceDescription(experienceInfo: string) {
   const prompt = `Given that I have experience working as ${experienceInfo}, provide a summary of three levels of activities I performed in that position, preferably as a list: High Activity, Medium Activity, and Low Activity. Each summary should be 3-4 lines long and written from my perspective, reflecting on my past experiences in that workplace. The output should be an array of JSON objects, each containing 'activity_level' and 'description' fields. You can include <b>, <i>, <u>, <s>, <blockquote>, <ul>, <ol>, and <li> to further enhance the descriptions. Use example work samples if needed, but do not insert placeholders for me to fill in.`;
 
-  const result = await askGemini(prompt);
-
-  return JSON.parse(result);
+  const result = await askGroq(prompt);
+  const match = result.match(/\[[\s\S]*\]/);
+  if (!match) throw new Error("No JSON array found in response");
+  return JSON.parse(match[0]);
 }

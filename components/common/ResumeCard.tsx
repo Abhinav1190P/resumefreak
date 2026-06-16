@@ -3,44 +3,25 @@
 import Link from "next/link";
 import React, { useState } from "react";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, MoreVertical } from "lucide-react";
+import { Loader2, MoreVertical, FileText } from "lucide-react";
 import { useRouter } from "next-nprogress-bar";
 import { deleteResume } from "@/lib/actions/resume.actions";
 import { useToast } from "../ui/use-toast";
 import { usePathname } from "next/navigation";
 
-const ResumeCard = ({
-  resume,
-  refreshResumes,
-}: {
-  resume: any;
-  refreshResumes: () => void;
-}) => {
+const ResumeCard = ({ resume, refreshResumes }: { resume: any; refreshResumes: () => void }) => {
   if (!resume) {
     return (
-      <div className="!bg-slate-200/30 relative aspect-[1/1.2] rounded-lg shadow-lg flex flex-col hover:scale-105 transition-all skeleton">
+      <div className="!bg-gray-100/60 relative aspect-[1/1.2] rounded-2xl shadow-sm flex flex-col hover:scale-105 transition-all skeleton">
         <div className="flex-1"></div>
-        <div className="border-0 p-3 flex justify-between bg-white/40 rounded-b-lg">
-          ‎{" "}
-        </div>
+        <div className="border-0 p-3 flex justify-between bg-white/40 rounded-b-2xl">‎ </div>
       </div>
     );
   }
@@ -54,107 +35,56 @@ const ResumeCard = ({
 
   const onDelete = async () => {
     setIsLoading(true);
-
     const result = await deleteResume(myResume.resumeId, pathname);
-
     setIsLoading(false);
     setOpenAlert(false);
-
     if (result.success) {
-      toast({
-        title: "Information saved.",
-        description: "Resume deleted successfully.",
-        className: "bg-white",
-      });
-
+      toast({ title: "Deleted.", description: "Resume deleted successfully.", className: "bg-white" });
       refreshResumes();
     } else {
-      toast({
-        title: "Uh Oh! Something went wrong.",
-        description: result?.error,
-        variant: "destructive",
-        className: "bg-white",
-      });
+      toast({ title: "Something went wrong.", description: result?.error, variant: "destructive", className: "bg-white" });
     }
   };
 
   return (
-    <div className="relative aspect-[1/1.2] flex flex-col hover:scale-105 transition-all">
-      <Link
-        href={"/my-resume/" + myResume.resumeId + "/view"}
-        className="flex-grow"
-      >
+    <div className="relative aspect-[1/1.2] flex flex-col hover:scale-105 transition-all group">
+      <Link href={"/my-resume/" + myResume.resumeId + "/view"} className="flex-grow">
         <div
-          className="bg-gradient-to-b from-pink-100 via-purple-200 to-blue-200 rounded-t-lg border-t-4 h-full"
-          style={{
-            borderColor: myResume?.themeColor,
-          }}
+          className="rounded-t-2xl border-t-4 h-full bg-gradient-to-b from-violet-50 via-indigo-50 to-purple-50 flex items-center justify-center"
+          style={{ borderColor: myResume?.themeColor || "#7c3aed" }}
         >
-          <div className="flex size-full items-center justify-center">
-            <img src="/img/blank-cv.png" width={80} height={80} />
+          <div className="flex flex-col items-center gap-2 opacity-40 group-hover:opacity-60 transition-opacity">
+            <FileText className="w-10 h-10 text-violet-400" />
           </div>
         </div>
       </Link>
 
-      <div className="border p-3 flex justify-between bg-white rounded-b-lg shadow-lg">
-        <h2 className="text-sm font-medium text-slate-700 mr-4 block whitespace-nowrap overflow-hidden text-ellipsis">
+      <div className="border border-t-0 p-3 flex justify-between items-center bg-white rounded-b-2xl shadow-sm">
+        <h2 className="text-xs font-semibold text-gray-700 mr-2 block whitespace-nowrap overflow-hidden text-ellipsis">
           {myResume.title}
         </h2>
-
         <DropdownMenu>
           <DropdownMenuTrigger>
-            <MoreVertical className="h-4 w-4 cursor-pointer" color="#000" />
+            <MoreVertical className="h-4 w-4 cursor-pointer text-gray-400 hover:text-gray-700" />
           </DropdownMenuTrigger>
-
-          <DropdownMenuContent>
-            <DropdownMenuItem
-              onClick={() =>
-                router.push("/my-resume/" + myResume.resumeId + "/edit")
-              }
-            >
-              Edit
-            </DropdownMenuItem>
-
-            <DropdownMenuItem
-              onClick={() =>
-                router.push("/my-resume/" + myResume.resumeId + "/view")
-              }
-            >
-              View
-            </DropdownMenuItem>
-
-            <DropdownMenuItem onClick={() => setOpenAlert(true)}>
-              Delete
-            </DropdownMenuItem>
+          <DropdownMenuContent className="rounded-xl">
+            <DropdownMenuItem onClick={() => router.push("/my-resume/" + myResume.resumeId + "/edit")}>Edit</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push("/my-resume/" + myResume.resumeId + "/view")}>View</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setOpenAlert(true)} className="text-red-500">Delete</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
       <AlertDialog open={openAlert}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our server.
-            </AlertDialogDescription>
+            <AlertDialogTitle>Delete this resume?</AlertDialogTitle>
+            <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel
-              onClick={() => setOpenAlert(false)}
-              disabled={isLoading}
-              className="no-focus"
-            >
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={onDelete} disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 size={20} className="animate-spin" /> &nbsp; Deleting
-                </>
-              ) : (
-                "Delete"
-              )}
+            <AlertDialogCancel onClick={() => setOpenAlert(false)} disabled={isLoading} className="no-focus rounded-lg">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={onDelete} disabled={isLoading} className="bg-red-500 hover:bg-red-600 rounded-lg">
+              {isLoading ? (<><Loader2 size={16} className="animate-spin" /> Deleting</>) : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
