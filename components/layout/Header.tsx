@@ -41,7 +41,12 @@ const Header = () => {
                 >
                   Sign In
                 </Link>
-
+                <Link
+                  href="/jd-match"
+                  className="text-sm font-medium text-gray-600 hover:text-violet-600 transition-colors px-3 py-2 rounded-lg hover:bg-violet-50"
+                >
+                  JD Matcher
+                </Link>
                 <Link
                   href="/sign-up"
                   className="rounded-xl bg-gradient-to-r from-purple-600 via-fuchsia-500 to-cyan-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105"
@@ -51,6 +56,12 @@ const Header = () => {
               </>
             ) : (
               <>
+               <Link
+                href="/jd-match"
+                className="text-sm font-medium text-gray-600 hover:text-violet-600 transition-colors px-3 py-2 rounded-lg hover:bg-violet-50 hidden md:block"
+              >
+                JD Matcher
+              </Link>
                 <Link
                   href="/dashboard"
                   className="hidden rounded-xl border border-purple-200 bg-white px-4 py-2 text-sm font-semibold text-purple-700 transition hover:border-purple-300 hover:bg-purple-50 md:block"
