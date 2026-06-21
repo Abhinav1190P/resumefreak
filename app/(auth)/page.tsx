@@ -187,7 +187,7 @@ const Page = () => {
       {/* FOOTER */}
       <footer className="border-t border-white/10 py-8">
         <div className="mx-auto max-w-7xl px-6 text-center text-sm text-gray-500">
-          © 2026 ResumeFreak. Built with ❤️ by Squad of Creators.
+          © 2026 ResumeFreak. Built with ❤️ by me.
         </div>
       </footer>
     </div>
